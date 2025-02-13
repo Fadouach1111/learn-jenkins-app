@@ -1,38 +1,36 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:18-alpine'
-            reuseNode true 
-        }
+    agent any
+
+    environment {
+        SONARQUBE_URL = 'http://sonarqube:9000'  // Ensure this matches your SonarQube server URL
     }
 
     stages {
-        stage('SCM'){
+        stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-        stage('install dependencies'){
+        stage('Install Dependencies') {
             steps {
                 sh 'npm install'
             }
         }
-        stage('build'){
+        stage('Build') {
             steps {
                 sh 'npm run build'
             }
         }
-        
         stage('SonarQube Analysis') {
-    agent any // Runs outside the Docker container
-    steps {
-        script {
-            def scannerHome = tool 'sonarqube' // Use the name you configured in the global tools section
-            withSonarQubeEnv() { // Set up the environment for SonarQube
-                sh "${scannerHome}/bin/sonar-scanner" // Run the SonarQube scanner
+            steps {
+                script {
+                    // Set the SonarQube scanner tool
+                    def scannerHome = tool name: 'sonarqube', type: 'SonarQubeScanner'
+                    withSonarQubeEnv('sonarqube') {
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.host.url=${SONARQUBE_URL}"
+                    }
+                }
             }
         }
     }
-}
-}
 }
