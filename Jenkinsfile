@@ -1,5 +1,9 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:10-alpine'
+        }
+    }
 
     environment {
         SONARQUBE_URL = 'http://sonarqube:9000'  // Ensure this matches your SonarQube server URL
