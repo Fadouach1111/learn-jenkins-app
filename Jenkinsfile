@@ -23,14 +23,16 @@ pipeline {
             }
         }
         
-        stage('SonarQube Analysis'){
-            agent any
-            steps {
-                def scannerHome = tool 'sonarqube';
-                withSonarQubeEnv() {
-                    sh "${scannerHome}/bin/sonar-scanner"
+        stage('SonarQube Analysis') {
+    agent any // Runs outside the Docker container
+    steps {
+        script {
+            def scannerHome = tool 'sonarqube' // Use the name you configured in the global tools section
+            withSonarQubeEnv() { // Set up the environment for SonarQube
+                sh "${scannerHome}/bin/sonar-scanner" // Run the SonarQube scanner
             }
         }
     }
+}
 }
 }
