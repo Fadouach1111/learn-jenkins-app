@@ -7,6 +7,11 @@ pipeline {
     }
 
     stages {
+        stage('SCM'){
+            steps {
+                checkout scm
+            }
+        }
         stage('install dependencies'){
             steps {
                 sh 'npm install'
@@ -17,17 +22,15 @@ pipeline {
                 sh 'npm run build'
             }
         }
-        stage('SCM'){
+        
+        stage('SonarQube Analysis'){
+            agent any
             steps {
-                checkout scm
-            }
-        }
-        stage('SonarQube Analysis') {
-            def scannerHome = tool 'Sonarqube';
-            withSonarQubeEnv() {
-                sh "${scannerHome}/bin/sonar-scanner"
+                def scannerHome = tool 'sonarqube';
+                withSonarQubeEnv() {
+                    sh "${scannerHome}/bin/sonar-scanner"
             }
         }
     }
 }
-
+}
